@@ -14,5 +14,5 @@ for _, row in edgelist.iterrows():
     graph.add_edge(row['node1'], row['node2'], attr_dict=dict(row[['node' not in c for c in row.index]]))
 
 # Add nodes and node attributes
-for i, nlrow in nodelist.iterrows():
-    graph.node[nlrow['id']] = nlrow[1:].to_dict()
+for __, row in nodelist.iterrows():
+    graph.add_node(row['id'], attr_dict=dict(row[['x', 'y']]))
