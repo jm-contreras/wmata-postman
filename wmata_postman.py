@@ -1,4 +1,5 @@
 # Import modules
+import itertools as it
 import networkx as nx
 import pandas as pd
 
@@ -16,3 +17,10 @@ for _, row in edgelist.iterrows():
 # Add nodes and node attributes
 for __, row in nodelist.iterrows():
     graph.add_node(row['id'], attr_dict=dict(row[['x', 'y']]))
+
+# Find nodes of odd degree
+nodes_odd_degree = [v for v, d in graph.degree if d % 2 == 1]
+
+# Compute odd node pairs
+odd_node_pairs = list(it.combinations(nodes_odd_degree, 2))
+
