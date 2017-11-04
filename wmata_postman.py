@@ -34,3 +34,9 @@ for pair in odd_node_pairs:
 graph_complete = nx.Graph()
 for nodes, dist in distances.items():
     graph_complete.add_edge(nodes[0], nodes[1], attr_dict={'distance': dist, 'weight': -dist})
+
+# Compute minimum weight matching
+matches = nx.algorithms.max_weight_matching(graph_complete, maxcardinality=True)
+
+# Remove duplicates
+matches = list(pd.unique([tuple(sorted([k, v])) for k, v in matches.items()]))
