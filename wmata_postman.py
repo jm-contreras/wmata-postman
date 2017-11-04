@@ -29,3 +29,8 @@ odd_node_pairs = list(it.combinations(nodes_odd_degree, 2))
 distances = {}
 for pair in odd_node_pairs:
     distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weight='distance')
+
+# Create complete graph
+graph_complete = nx.Graph()
+for nodes, dist in distances.items():
+    graph_complete.add_edge(nodes[0], nodes[1], attr_dict={'distance': dist, 'weight': -dist})
