@@ -1,7 +1,10 @@
 # Import modules
 import itertools as it
+
 import networkx as nx
 import pandas as pd
+
+import utils as u
 
 
 # Create empty graph
@@ -11,19 +14,13 @@ graph = nx.Graph()
 edgelist = pd.read_csv('edgelist_wmata.csv')
 nodelist = pd.read_csv('nodelist_wmata.csv')
 
-# Add edges and edge attributes
-for _, row in edgelist.iterrows():
-    graph.add_edge(row['node1'], row['node2'], attr_dict=dict(row[['node' not in c for c in row.index]]))
+# Add edges, nodes, and their attributes
+graph = u.add_edges(graph, edgelist)
+graph = u.add_nodes(graph, nodelist)
 
-# Add nodes and node attributes
-for __, row in nodelist.iterrows():
-    graph.add_node(row['id'], attr_dict=dict(row[['x', 'y']]))
-
-# Find nodes of odd degree
-nodes_odd_degree = [v for v, d in graph.degree if d % 2 == 1]
-
-# Compute odd node pairs
-odd_node_pairs = list(it.combinations(nodes_odd_degree, 2))
+# Find nodes of odd degree and odd node pairs
+odd_degree_nodes = u.find_odd_degree_nodes(graph)
+odd_node_pairs = list(it.combinations(odd_degree_nodes, 2))
 
 # Compute shortest distance between each pair of nodes in graph
 distances = {}
@@ -40,3 +37,12 @@ matches = nx.algorithms.max_weight_matching(graph_complete, maxcardinality=True)
 
 # Remove duplicates
 matches = list(pd.unique([tuple(sorted([k, v])) for k, v in matches.items()]))
+
+# Augment original graph with matches
+# We need to make the augmented graph a MultiGraph so we can add parallel edges
+for pair in matches:
+    graph.add_edge(pair[0], pair[1],
+                       attr_dict={'distance': nx.dijkstra_path_length(graph, pair[0], pair[1]),
+                                  'trail': 'augmented'}
+                       )
+return graph_aug
