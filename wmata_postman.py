@@ -23,26 +23,13 @@ odd_degree_nodes = u.find_odd_degree_nodes(graph)
 odd_node_pairs = list(it.combinations(odd_degree_nodes, 2))
 
 # Compute shortest distance between each pair of nodes in graph
-distances = {}
-for pair in odd_node_pairs:
-    distances[pair] = nx.dijkstra_path_length(graph, pair[0], pair[1], weight='distance')
+distances = u.find_shortest_distances(odd_node_pairs, graph)
 
 # Create complete graph
-graph_complete = nx.Graph()
-for nodes, dist in distances.items():
-    graph_complete.add_edge(nodes[0], nodes[1], attr_dict={'distance': dist, 'weight': -dist})
+graph_complete = u.build_complete_graph(distances)
 
-# Compute minimum weight matching
-matches = nx.algorithms.max_weight_matching(graph_complete, maxcardinality=True)
-
-# Remove duplicates
-matches = list(pd.unique([tuple(sorted([k, v])) for k, v in matches.items()]))
+# Compute minimum weight matching, removing duplicates
+matches = u.compute_min_weight_matches(graph_complete)
 
 # Augment original graph with matches
-# We need to make the augmented graph a MultiGraph so we can add parallel edges
-for pair in matches:
-    graph.add_edge(pair[0], pair[1],
-                       attr_dict={'distance': nx.dijkstra_path_length(graph, pair[0], pair[1]),
-                                  'trail': 'augmented'}
-                       )
-return graph_aug
+graph_augmented = u.augment_graph_with_matches(graph, matches)
