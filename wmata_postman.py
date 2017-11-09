@@ -33,3 +33,6 @@ matches = u.compute_min_weight_matches(graph_complete)
 
 # Augment original graph with matches
 graph_augmented = u.augment_graph_with_matches(graph, matches)
+
+# Create naive Euler circuit
+naive_euler_circuit = list(nx.eulerian_circuit(graph_augmented, source='b_end_east'))
